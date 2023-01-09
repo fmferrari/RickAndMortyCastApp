@@ -8,12 +8,13 @@
 import Combine
 import SwiftUI
 
+@available(iOS 16.0, *)
 struct MainScreen: View {
     @StateObject var viewModel = MainScreenViewModel()
     @State var showAlert = false
-    
+    @State var detail: [CharacterItem] = []
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $detail) {
             switch viewModel.state {
             case .idle:
                 Image("Splash")
@@ -30,6 +31,7 @@ struct MainScreen: View {
                 buildList()
             }
         }
+ 
         .searchable(text: $viewModel.searchQuery, prompt: "Search by name...")
         .onChange(of: viewModel.searchQuery) { _ in
             viewModel.applyFilter()
@@ -42,10 +44,11 @@ struct MainScreen: View {
     func buildList(error: RickAndMortyCastAppError? = nil) -> some View {
         return List {
             ForEach(viewModel.filteredCharacters) { character in
-                NavigationLink {
-                    CharacterDetailView(character: character)
-                } label: {
+                NavigationLink(value: character) {
                     CharacterItemListView(character: character)
+                }
+                .onSubmit {
+                    detail = [character]
                 }
             }
 
@@ -64,6 +67,9 @@ struct MainScreen: View {
                 }
 
             }
+        }
+        .navigationDestination(for: CharacterItem.self) { character in
+            CharacterDetailView(character: character)
         }
         .refreshable {
             await viewModel.load(isRefresh: true) // Will redownload each page again in order to update the content

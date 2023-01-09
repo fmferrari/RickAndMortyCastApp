@@ -46,7 +46,7 @@ struct PersistenceController: PersistenceControllerProtocol {
             if let error = error {
                 fatalError("Fail to create CoreData Stack \(error.localizedDescription)")
             } else {
-                print("CoreData Stack set up with in-memory store type")
+                print("CoreData Stack set up with persistent store type")
             }
         })
         container.viewContext.automaticallyMergesChangesFromParent = true
